@@ -2,6 +2,8 @@
 # 
 # 
 
+import pandas as pd
+
 def event_number_clean(num):
     """
     Removes 'PD' from the beginning of each event number and recasts as int
@@ -15,3 +17,14 @@ def event_number_clean(num):
 
     return int(num[2:])
 
+
+def preprocess():
+    pass
+    
+    # after all preprocessing done, save the file to a feather
+    df.to_feather('/data/calls.feather')
+    print('Feather successfully created')
+    
+
+if __name__ == '__main__':
+    preprocess()

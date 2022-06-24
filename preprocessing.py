@@ -21,6 +21,9 @@ def event_number_clean(num):
 def preprocess():
     pass
     
+    # drop unneeded columns
+    df = df.drop(['Tencode Description', 'Tencode Suffix Description'], axis=1)
+    
     # after all preprocessing done, save the file to a feather
     df.to_feather('/data/calls.feather')
     print('Feather successfully created')

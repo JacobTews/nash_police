@@ -1,23 +1,18 @@
-# Preprocessing script
-# 
-# 
 import numpy as np
 import pandas as pd
-
-def event_number_clean(num):
-    """
-    Removes 'PD' from the beginning of each event number and recasts as int
-
-    Meant to be apply()ed to the 'Event Number' column of dataframe.
-
-    :param num: str, the original event number in the dataset
-
-    :return: int, the cleaned event number
-    """
-
-    return int(num[2:])
+import datetime
 
 
+# *******
+# Preprocessing Functions
+
+def complaint_number_clean(num):
+    if np.isnan(num):
+        return 0
+    else:
+        return 1
+
+    
 def disposition_code_clean(row):
     
     # The three variables calculated here must all be strings for the function to work.
@@ -62,6 +57,20 @@ def disposition_code_clean(row):
         row['Tencode Suffix'] = np.nan
     
     return row
+
+
+def event_number_clean(num):
+    """
+    Removes 'PD' from the beginning of each event number and recasts as int
+
+    Meant to be apply()ed to the 'Event Number' column of dataframe.
+
+    :param num: str, the original event number in the dataset
+
+    :return: int, the cleaned event number
+    """
+
+    return int(num[2:])
 
 
 def sector_and_zone_clean(row):
@@ -254,10 +263,81 @@ def sector_and_zone_clean(row):
     return row
 
 def preprocess():
-    pass
+    """
+    Preprocessing script for the Metro Nashville Police Department Calls for Service dataset
+
+    :return: None
+    """
+    
+    t0 = datetime.now()
+    
+    # import dataset
+    df = pd.read_csv('data/Metro_Nashville_Police_Department_Calls_for_Service.csv',
+                      parse_dates=['Call Received'],
+                     dtype={'Event Number': str,
+                            'Complaint Number': float,
+                            'Tencode': str,
+                            'Tencode Description': str,
+                            'Tencode Suffix': str,
+                            'Tencode Suffix Description': str,
+                            'Disposition Code': str,
+                            'Disposition Description': str,
+                            'Block': float,
+                            'Street Name': str,
+                            'Unit Dispatched': str,
+                            'Shift': str,
+                            'Sector': str,
+                            'Zone': str,
+                            'RPA': float,
+                            'Latitude': float,
+                            'Longitude': float,
+                            'Mapped Location': str
+                           }
+                    )
+    import_t = datetime.now()
+    print(f'Data imported successfully.\n'
+          f'Import time: {import_t - t0}\n'
+          f'Total elapsed time: {import_t - t0}'
     
     # drop unneeded columns
-    df = df.drop(['Tencode Description', 'Tencode Suffix Description'], axis=1)
+    df = df.drop(['Tencode Description',
+                  'Tencode Suffix Description',
+                  'Disposition Description',
+                  'Unit Dispatched',
+                  'RPA',
+                  'Mapped Location'], axis=1)
+    drop_t = datetime.now()
+    print(f'Columns dropped successfully.\n'
+          f'Drop time: {drop_t - import_t}\n'
+          f'Total elapsed time: {drop_t - t0}'
+    
+    # strip PD from event numbers
+    df['Event Number'] = df['Event Number'].apply(event_number_clean)
+    pd_strip_t = datetime.now()
+    print(f'Event numbers cleaned successfully.\n'
+          f'Event cleaning time: {pd_strip_t - drop_t}\n'
+          f'Total elapsed time: {pd_strip_t - t0}'
+    
+    # create a boolean flag for whether an incident was generated
+    df['generated_incident_yn'] = samp['Complaint Number'].apply(complaint_number_clean)
+    df.drop('Complaint Number', axis=1)
+    incid_flag_t = datetime.now()
+    print(f'Incident flag created successfully.\n'
+          f'Flagging time: {incid_flag_t - pd_strip_t}\n'
+          f'Total elapsed time: {incid_flag_t - t0}'
+    
+    # clean the disposition codes
+    df = df.apply(disposition_code_clean, axis=1)
+    disp_t = datetime.now()
+    print(f'Event numbers cleaned successfully.\n'
+          f'Event cleaning time: {incid_flag_t - pd_strip_t}\n'
+          f'Total elapsed time: {incid_flag_t - t0}'
+    
+    # update the shift feature to a categorical
+    df['Shift'] = df['Shift'].astype('category')
+    
+    # clean the sector and zone features
+    df = df.apply(sector_and_zone_clean, axis=1)
     
     # after all preprocessing done, save the file to a feather
     df.to_feather('/data/calls.feather')
@@ -266,3 +346,4 @@ def preprocess():
 
 if __name__ == '__main__':
     preprocess()
+    print('testing')

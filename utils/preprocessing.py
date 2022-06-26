@@ -225,7 +225,11 @@ def sector_and_zone_clean(row):
                 elif len(row['Zone']) < 3:
                     zone_number = ''
                 else:
-                    zone_number = row['Zone']
+                    zone_number = ''
+                    # zone is 3 characters, but one of them may be a letter, most likely the final char
+                    if row['Zone'].isnumeric():
+                        # zone is all numerals
+                        zone_number = row['Zone']
         elif row['Sector'] in zone_to_sect_dct.values():
             # the sector code is a proper code
             sector_letter = row['Sector']
@@ -234,7 +238,11 @@ def sector_and_zone_clean(row):
             elif len(row['Zone']) < 3:
                 zone_number = ''
             else:
-                zone_number = row['Zone']
+                zone_number = ''
+                # zone is 3 characters, but one of them may be a letter, most likely the final char
+                if row['Zone'].isnumeric():
+                    # zone is all numerals
+                    zone_number = row['Zone']
         elif row['Sector'] not in zone_to_sect_dct.values():
             # the code is alphabetic but not a proper sector code
             if row['Sector'].upper() in typo_dct.keys():
@@ -244,7 +252,11 @@ def sector_and_zone_clean(row):
                 elif len(row['Zone']) < 3:
                     zone_number = ''
                 else:
-                    zone_number = row['Zone']
+                    zone_number = ''
+                    # zone is 3 characters, but one of them may be a letter, most likely the final char
+                    if row['Zone'].isnumeric():
+                        # zone is all numerals
+                        zone_number = row['Zone']
             else:
                 sector_letter = ''
                 if len(row['Zone']) > 3:
@@ -252,7 +264,11 @@ def sector_and_zone_clean(row):
                 elif len(row['Zone']) < 3:
                     zone_number = ''
                 else:
-                    zone_number = row['Zone']
+                    zone_number = ''
+                    # zone is 3 characters, but one of them may be a letter, most likely the final char
+                    if row['Zone'].isnumeric():
+                        # zone is all numerals
+                        zone_number = row['Zone']
         else:
             # in all other cases, since I don't have additional information, I will simply remove the sector code
             sector_letter = ''
@@ -261,7 +277,11 @@ def sector_and_zone_clean(row):
             elif len(row['Zone']) < 3:
                 zone_number = ''
             else:
-                zone_number = row['Zone']
+                zone_number = ''
+                # zone is 3 characters, but one of them may be a letter, most likely the final char
+                if row['Zone'].isnumeric():
+                    # zone is all numerals
+                    zone_number = row['Zone']
             
 
     # At this point, both sector_letter and zone_number should hold either empty str or useful information.
@@ -277,9 +297,9 @@ def sector_and_zone_clean(row):
                 # if the first char in the zone is '9', this block will run
                 sector_letter = np.nan
                 zone_number = np.nan
-            else:
-                # if the zone number is a proper value, the except block will not run and this will
-                zone_number = int(zone_number)
+            # else:
+            #     # if the zone number is a proper value, the except block will not run and this will
+            #     zone_number = int(zone_number)
         else:
             # sector and zone are both blank
             sector_letter = np.nan
@@ -289,9 +309,9 @@ def sector_and_zone_clean(row):
         if zone_number == '':
             # zone is blank
             zone_number = np.nan
-        else:
-            # otherwise neither sector nor zone is blank, in which case the variable values remain (with zone turned into an int for storage)
-            zone_number = int(zone_number)
+        # else:
+        #     # otherwise neither sector nor zone is blank, in which case the variable values remain (with zone turned into an int for storage)
+        #     zone_number = int(zone_number)
            
     # After all the above processing, we insert the two values into the dataframe
     row['Zone'] = zone_number
@@ -354,9 +374,8 @@ def preprocess(df):
           f'Sector and zone cleaning time: {sect_zone_t - shift_t}\n'
           f'Total elapsed time: {sect_zone_t - t0}\n\n\n')
     
-    # after all preprocessing done, save the file to a feather
-    df.to_feather('/data/calls.feather')
-    print('Feather successfully created.')
+    # after all preprocessing done, reset the index, then return the cleaned df
+    df = df.reset_index()
     
     return df
 

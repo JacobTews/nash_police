@@ -297,7 +297,7 @@ def preprocess():
     import_t = datetime.now()
     print(f'Data imported successfully.\n'
           f'Import time: {import_t - t0}\n'
-          f'Total elapsed time: {import_t - t0}'
+          f'Total elapsed time: {import_t - t0}')
     
     # drop unneeded columns
     df = df.drop(['Tencode Description',
@@ -309,14 +309,14 @@ def preprocess():
     drop_t = datetime.now()
     print(f'Columns dropped successfully.\n'
           f'Drop time: {drop_t - import_t}\n'
-          f'Total elapsed time: {drop_t - t0}'
+          f'Total elapsed time: {drop_t - t0}')
     
     # strip PD from event numbers
     df['Event Number'] = df['Event Number'].apply(event_number_clean)
     pd_strip_t = datetime.now()
     print(f'Event numbers cleaned successfully.\n'
           f'Event cleaning time: {pd_strip_t - drop_t}\n'
-          f'Total elapsed time: {pd_strip_t - t0}'
+          f'Total elapsed time: {pd_strip_t - t0}')
     
     # create a boolean flag for whether an incident was generated
     df['generated_incident_yn'] = samp['Complaint Number'].apply(complaint_number_clean)
@@ -324,26 +324,34 @@ def preprocess():
     incid_flag_t = datetime.now()
     print(f'Incident flag created successfully.\n'
           f'Flagging time: {incid_flag_t - pd_strip_t}\n'
-          f'Total elapsed time: {incid_flag_t - t0}'
+          f'Total elapsed time: {incid_flag_t - t0}')
     
     # clean the disposition codes
     df = df.apply(disposition_code_clean, axis=1)
     disp_t = datetime.now()
-    print(f'Event numbers cleaned successfully.\n'
-          f'Event cleaning time: {incid_flag_t - pd_strip_t}\n'
-          f'Total elapsed time: {incid_flag_t - t0}'
+    print(f'Disposition codes cleaned successfully.\n'
+          f'Disposition cleaning time: {disp_t - incid_flag_t}\n'
+          f'Total elapsed time: {disp_t - t0}')
     
     # update the shift feature to a categorical
     df['Shift'] = df['Shift'].astype('category')
+    shift_t = datetime.now()
+    print(f'Shift categories created successfully.\n'
+          f'Shift categories time: {shift_t - disp_t}\n'
+          f'Total elapsed time: {shift_t - t0}')    
     
     # clean the sector and zone features
     df = df.apply(sector_and_zone_clean, axis=1)
+    sect_zone_t = datetime.now()
+    print(f'Sectors and zones cleaned successfully.\n'
+          f'Sector and zone cleaning time: {sect_zone_t - shift_t}\n'
+          f'Total elapsed time: {sect_zone_t - t0}')
     
     # after all preprocessing done, save the file to a feather
     df.to_feather('/data/calls.feather')
-    print('Feather successfully created')
+    print('Feather successfully created.')
     
 
 if __name__ == '__main__':
     preprocess()
-    print('testing')
+    print('Preprocessing complete!')

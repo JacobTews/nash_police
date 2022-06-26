@@ -347,7 +347,7 @@ def preprocess(df):
     
     # create a boolean flag for whether an incident was generated
     df['generated_incident_yn'] = df['Complaint Number'].apply(complaint_number_clean)
-    df.drop('Complaint Number', axis=1)
+    df = df.drop('Complaint Number', axis=1)
     incid_flag_t = datetime.now()
     print(f'Incident flag created successfully.\n'
           f'Flagging time: {incid_flag_t - pd_strip_t}\n'

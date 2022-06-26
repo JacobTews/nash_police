@@ -82,6 +82,7 @@ def import_data():
                       parse_dates=['Call Received'],
                      dtype={'Event Number': str,
                             'Complaint Number': float,
+                            'Call Received': str,
                             'Tencode': str,
                             'Tencode Description': str,
                             'Tencode Suffix': str,
@@ -100,6 +101,7 @@ def import_data():
                             'Mapped Location': str
                            }
                     )
+    
     import_t = datetime.now()
     print(f'Data imported successfully.\n'
           f'Import time: {import_t - t0}\n'
@@ -172,6 +174,7 @@ def sector_and_zone_clean(row):
                 # zone is all numerals
                 zone_number = row['Zone']
             else:
+                zone_number = ''
                 # zone includes either 1, 2, or 3 letters, in which case we do not have a valid zone number
                 for i, char in enumerate(row['Zone'].upper()):
                     if i+1 < len(row['Zone']) and char in zone_to_sect_dct.values():
@@ -184,7 +187,6 @@ def sector_and_zone_clean(row):
                         if char in zone_to_sect_dct.values():
                             # if the final character is a sector code
                             sector_letter = char
-            zone_number = ''
         # at this point, the variable zone_number holds a str which is either a 3-digit numeral or empty
         # and the variable sector_letter is likely an empty str (because it was a null) or possibly had a value imputed from the zone
     elif isinstance(row['Zone'], float):

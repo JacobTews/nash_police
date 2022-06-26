@@ -1,6 +1,7 @@
 # Large files
 ./data/Metro_Nashville_Police_Department_Calls_for_Service.csv
 data/Metro_Nashville_Police_Department_Calls_for_Service.csv
+data/cleaned_data.feather
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
